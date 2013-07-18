@@ -1,42 +1,41 @@
 function[Ve] = electron(f,ne,Te,L)
 
-% Electorn calculat the the electron thermal noise for a wier dipole antenna.
+% Electorn calculate the electronic QTN noise for a wire dipole antenna.
 % [Ve] = electron(f,ne,Te) where:
 % input:
-% f is a vector white the freqensy.
-% ne is the electron densety.
-% Te is the electron temperatur.
-% L  antenna lenght
+% f is a vector with the frequency.
+% ne is the electron density.
+% Te is the electron temperature.
+% L  is the antenna length
 %
 % Output:
-% Ve is a vector for the voltage power spectrum from the electron nois
+% Ve is a vector whit the voltage power spectrum from the electronic QTN noise
 %
-% The equastion comes from meyer.bernet and chateau artical from 1991(electrostatic noise in non-maxwellian plasmas) 
+% The equastion comes from Meyer. Bernet and chateau artical from 1991 (electrostatic noise in non-maxwellian plasmas) 
 % 
-% electron(f,ne,Te) deliver a vector white the calulated results of f.
 %
 % exampel:
-%         electron([1 2 3 4 5 6],5e6,1.5e5)
+%         electron([1 2 3 4 5 6],5e6,1.5e5,5)
 %
 % see also nois, ion, shot.
 %
 % $Id: electon.m,v 1.2 2013/04/10 14:23:00 Pansar Exp $
 
-%% Declaration of constatns 
+%% Declaration of constants 
 
 Me= 9.10938291*10^-31;  %% Electron mass                (KG)
-KB= 1.3806488*10^-23;   %% Boltsman konstatn            (J/K)
-e0= 8.854187817*10^-12; %% Electric constatn            (F/m)
-qe= 1.602176565*10^-19; %% Elemetary charge             (C)
+KB= 1.3806488*10^-23;   %% Boltsman constant            (J/K)
+e0= 8.854187817*10^-12; %% Electric constant            (F/m)
+qe= 1.602176565*10^-19; %% elementary charge             (C)
 
 k=2;                    %% Kappa
 
 %% Small functions 
-v=sqrt((2.*k-3)./k.*KB.*Te./Me);    %% Electron thermisk velocity   (m/s)
+v=sqrt((2.*k-3)./k.*KB.*Te./Me);    %% Electron thermal velocity   (m/s)
 
-Fp=sqrt(ne*qe.^2/(Me*e0))/(2*pi);   %% Plasma frequensy
+Fp=sqrt(ne*qe.^2/(Me*e0))/(2*pi);   %% Plasma frequency
 
-Ld=sqrt(e0*KB*Te/(ne*(qe)^2));  %% Debay length
+Ld=sqrt(e0*KB*Te/(ne*(qe)^2));      %% Debay length
 
 n=1;
 u=L./Ld;

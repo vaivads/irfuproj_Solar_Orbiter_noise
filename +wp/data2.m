@@ -1,44 +1,41 @@
 function[Ne,Tp,Be,Ve,BRT,BRE,BRI,BRP,URT,URE,URI,URP,VU,VB,Is,Ib,Iu,IT0] = data2(D,IB,P,Vsweep,r)
 
-% data calculat the plasam parameter dependin on the distenc from the sun. 
-% it collect data form  the helios1 and helios 2  satellite.   
+% data2 calculate the plasma parameter depending on the distance from the sun.
+% it collects data from the Helios 1 and Helios 2 satellite.   
 %
-% [Ne,Te,Be,Ve,BRT,BRE,BRI,BRP,URT,URE,URI,URP,UV,BV,Is,Ib,Iu] = data(D,IB,P,Vsweep,r)
+% [Ne,Te,Be,Ve,BRT,BRE,BRI,BRP,URT,URE,URI,URP,UV,BV,Is,Ib,Iu] = data2(D,IB,P,Vsweep,r)
 % input:
-% D  distences to from the sun .
-% IB wanted current biast for the antenna.
-% P avrige probebillity.
+% D distances to from the sun .
+% IB wanted current biased for the antenna.
+% P avrige probability.
 % Vsweep  voltage sweep band
 % r antenna radius.
 %
 % Output:
-%Ne partikal densety 
-%Tp proton temperatur 
-%Be magnetic feild
+%Ne partial density 
+%Tp proton temperature 
+%Be magnetic field
 %Ve solar wind speed
-%BRT total resistance biast
-%BRE electron resistance biast
-%BRI Ion resistance biast
-%BRP photoelectron resistance biast
-%URT total resistance unbiat
-%URE electron resistance unbiast
-%URI Ion resistance unbiast
-%URP photoelectron resistance unbiast
-%VU  voltage when unbiast
-%VB  volteag when biast
+%BRT total resistance biased
+%BRE electron resistance biased
+%BRI Ion resistance biased
+%BRP photoelectron resistance biased
+%URT total resistance unbiased
+%URE electron resistance unbiased
+%URI Ion resistance unbiased
+%URP photoelectron resistance unbiased
+%VU  voltage when unbiased
+%VB  voltage when biased
 %Is  current when saturated
-%Ib  current when biast
-%Iu  current when unbiast 
+%Ib  current when biased
+%Iu  current when unbiased
 %
-%  
-%
+% 
 % see also: 
 %
 % $Id: nose.m,v 1.0 2013/04/10 14:48:00 Pansar Exp $
 %
-load '/Users/wicpan/Dropbox/IRFU/matlab/helios/Helios_data'
-
-
+load 'wp/Helios_data'
 
 i=1;
 n=1;
@@ -61,11 +58,11 @@ while n<=length(x)
     end
     
     n=n+1;
-end
+End     % collect values from Helios 1
 n=1;
 x=helios2.heliocentricDistance(:,2);
 
-while n<=length(x)
+while n<=length(x)   % collect values from Helios 2
     
     if ((D-0.01)<x(n)) & ((D+0.01)>x(n))
           
@@ -85,7 +82,7 @@ while n<=length(x)
 end
 
 
-for i = 1:length(P)
+For I = 1: length (P) % removing NAN values
     
 Ne(i) = prctile(N(~isnan(N)),P(i));
         
@@ -144,6 +141,7 @@ end
 end
 for i=1:length(P),
     
+    % setup for probe_current
     probe.type  ='cylindrical';                             %'spherical','cylindrical','arbitrary'
     probe.surface ='gold';                                  %'themis','cassini' (one of flags in lp.photocurrent)
     probe.cross_section_area =r*2*5;                        %in m2
@@ -165,15 +163,15 @@ for i=1:length(P),
     Is(i)=min(J_photo);
     [idx idx] = min(abs(J_probe));
 
-    if idx<21
+    if idx<21  % check if the required values is on too high or too low
         idx=21;
 
-    elseif idx>length(J_probe)-21
+        elseif idx>length(J_probe)-21
         idx=length(J_probe)-21;
     end
 
     
-
+    % calculating the resistance when it is unbiased 
     URT(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_probe(idx+20)-J_probe(idx-20));
     URP(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_photo(idx+20)-J_photo(idx-20));
     URE(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_plasma{1}(idx+20)-J_plasma{1}(idx-20));
@@ -191,7 +189,7 @@ for i=1:length(P),
     elseif idx>length(J_probe)-21
          idx=length(J_probe)-21;
     end
-    
+    % calculating the resistance when it is biased 
     BRT(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_probe(idx+20)-J_probe(idx-20));
     BRP(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_photo(idx+20)-J_photo(idx-20));
     BRE(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_plasma{1}(idx+20)-J_plasma{1}(idx-20));
@@ -200,6 +198,7 @@ for i=1:length(P),
     Ib(i)=J_probe(idx);
     VB(i)=U_probe(idx);
     
+    % Plot of the collected values at  the distance
     PL=figure(1);
     set(0,'defaultLineLineWidth', 1.5);
     set(gcf,'defaultAxesFontSize',14);
@@ -225,6 +224,7 @@ for i=1:length(P),
     name=['\Users\wicpan\Dropbox\IRFU\pic\U-I\vs',num2str(D*100,'%6.4g'),num2str(i,'%6.4g'),'.eps'];
     print( '-depsc2' , name )
     
+    % Plot of the U-I curve
     UI=figure((1+i));
     set(0,'defaultLineLineWidth', 1.5);
     set(gcf,'defaultAxesFontSize',14);
@@ -256,4 +256,4 @@ for i=1:length(P),
     print( '-depsc2' , name )
 end
 
-end
+

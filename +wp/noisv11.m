@@ -1,29 +1,26 @@
-function[] = noisv11(D,IT)
+Function[] = noisv11(D,IT)
 
-% Noisv11 calculat the ion thermal nois and electon thermal nois and the shot
-% noise  ant the total for a wier dipole antenna.
-% [] = noisv11(D,IT) does the calculations baset on den distenc from teh
-% sun and the wahnted bisat current.
-% It uses the funtion ion, electron,shote, noisR and data for the calculations. 
+% Noisv11 calculate the total noise for a wire dipole antenna.
+% [] = noisv11 (D, IT) does the calculations based on the distance from the
+% sun and the wanted biased current.
+% It uses the function ion, electron, short and data2 for the calculations. 
 %
-% 
-% The result of the calculation will be ploted in a logaritmis scale.
-%
+% The result of the calculation will be potted in a logarithmic scale.
 %
 % see also shot, ion, electron.
 %
 % $Id: nose.m,v 1.1 2013/04/10 14:52:00 Pansar Exp $
 
-%% Declaration of constatns
+%% Declaration of constants
 Units=irf_units;
 Me= Units.me;      %% Electron mass            (Kg)
-Mp= Units.mp;      %% Proten mass              (Kg)
-eps0= Units.eps0;  %% Electric constatn        (F/m)
+Mp= Units.mp;      %% Proton mass              (Kg)
+eps0= Units.eps0;  %% Electric constant        (F/m)
 qe= Units.e;       %% Elemetary charge         (C)
 KB= Units.kB;      %% Boltsman konstatn        (J/K)
-L=5;               %% Antenna lenghts          (m)
+L=5;               %% Antenna lengths          (m)
 r=0.575e-2;        %% Antenna radiens          (m)
-%% Freqensy band
+
 tic;
 Vsweep=[-5:0.00001:15];
 P=[50 95 95];
@@ -31,23 +28,23 @@ P=[50 95 95];
 [Ne,Tp,B,V,RBt,RBe,RBi,RBp,RUt,RUe,RUi,RUp,VU,VB,Is,Ib,Iu,IT0]...
     = wp.data2(D,IT,P,Vsweep,r);
 
-%%Tp  Proton temperatur                     (K)
-%%RBe Antenna resistance biast electron     (ohm)
-%%RBi Antenna resistance biast proton       (ohm)        
-%%RBp Antenna resistance biast poton        (ohm)
-%%RBt Antenna resistance biast total        (ohm) 
-%%RUe Antenna resistance unbiast electron   (ohm)
-%%RUi Antenna resistance unbiast proton     (ohm)        
-%%RUp Antenna resistance unbiast poton      (ohm)
-%%RUt Antenna resistance unbiast total      (ohm)
-%%UV Unbiast voltag                         (V)
-%%BV Biast voltage                          (V)
-%%Is Current saturation                     (A)
-%%Ib Current biast                          (A)
-%%Iu Current unbiast                        (A)
+%%Tp  Proton Temperatur                     	(K)
+%%RBe Antenna resistance biased electron     	(ohm)
+%%RBi Antenna resistance biased proton       	(ohm)        
+%%RBp Antenna resistance biased potonelectron	(ohm)
+%%RBt Antenna resistance biased total        	(ohm) 
+%%RUe Antenna resistance unbiased electron   	(ohm)
+%%RUi Antenna resistance unbiased proton     	(ohm)        
+%%RUp Antenna resistance unbiased potonelectron(ohm)
+%%RUt Antenna resistance unbiased total      	(ohm)
+%%UV Unbiased voltage                         (V)
+%%BV Biased voltage                         	(V)
+%%Is current saturation                     	(A)
+%%Ib current biased 					(A)
+%%Iu current biased 					(A)
 
-Ne=Ne.*1e6;         %% Electron dencety             (m^-3) 
-Te=Tp./2.5;         %% Electron temperatur          (K)
+Ne=Ne.*1e6;         %% Electron density             (m^-3) 
+Te=Tp./2.5;         %% Electron Temperatur          (K)
 V=V.*1e3;           %% Solar wind velocity          (m/s)
 B=B.*1e-9;          %% Magnetic field               (T)
 
@@ -59,20 +56,19 @@ for i=1:length(P),
 Fp(i)=sqrt(Ne(i)*qe.^2/(Me*eps0))/(2*pi);   %% Plasma frequency             (Hz)
 LFe(i)=qe*B(i)/(2*pi*Me);                   %% Lamor frequency electron     (Hz)
 LFp(i)=qe*B(i)/(2*pi*Mp);                   %% Lamor frequency proton       (Hz)
-v(i)=sqrt((KB*Te(i))/Me);                   %% Electron thermisk velocity   (m/s)
+v(i)=sqrt((KB*Te(i))/Me);                   %% Electron thermal velocity   (m/s)
 Ld(i)=sqrt(eps0*KB*Te(i)/(Ne(i)*(qe)^2));   %% Debay length                 (m)
 
 
-f{i}=10.^[log10(10^-1):1:log10(1e6)];
+f{i}=10.^[log10(10^-1):1:log10(1e6)];  %frequsny range
 
+I{i}=wp.C.ion(f{i},Ne(i),Te(i),Tp(i),V(i),L); % QTN ion noise
 
-I{i}=wp.C.ion(f{i},Ne(i),Te(i),Tp(i),V(i),L);
+E{i}=wp.C.electron(f{i},Ne(i),Te(i),L);        % QTN electon 
 
-E{i}=wp.C.electron(f{i},Ne(i),Te(i),L);
+SBe{i}=wp.C.shote(f{i},Ne(i),Te(i),RBt(i),Cp,L,Me); %Shot noise biased
 
-SBe{i}=wp.C.shote(f{i},Ne(i),Te(i),RBt(i),Cp,L,Me);
-
-SUe{i}=wp.C.shote(f{i},Ne(i),Te(i),RUt(i),Cp,L,Me);
+SUe{i}=wp.C.shote(f{i},Ne(i),Te(i),RUt(i),Cp,L,Me); %shot noise unbiased
 
 n=1;
 for j=f{i}
@@ -80,7 +76,7 @@ for j=f{i}
         E{i}(n)=0;
         n=n+1;
     end
-end
+End % removing QTN election values lower than the electron gyrofrequency
 
 n=1;
 for j=f{i}
@@ -88,12 +84,13 @@ for j=f{i}
         I{i}(n)=0;
         n=n+1;
     end
-end
-    
-T{i}=sqrt(I{i}.^2+E{i}.^2);
+End  % removing QTN electron ion lower than the ion gyrofrequency
+
+     
+T{i}=sqrt(I{i}.^2+E{i}.^2); % Total QTN
 
 
-%% thevene 
+%% calculating the other noises 
 IB(i)=sqrt(Is(i)^2+(Is(i)-Ib(i))^2); 
 IU(i)=sqrt(Is(i)^2+(Is(i)-Iu(i))^2);
 
@@ -108,8 +105,8 @@ IU(i)=sqrt(Is(i)^2+(Is(i)-Iu(i))^2);
 end
 
 for i=1:length(P),
-%% Plot issad and mayers
-
+%% Plots
+% ploting the QTN
 issad=figure(length(P)+i);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -142,13 +139,13 @@ legend('Ion ','Electron','Totel','Larmor frequency ion',...
 grid on
 xlim([10^-1 10^6])
 ylim([10^-19 10^-11])
-set(issad,'color','white'); % white background for figures (default is grey)
+set(issad,'color','white'); % white background for the figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\issad',num2str(D*100,'%6.4g'),num2str(i...
     ,'%6.4g'),'.eps'];
 print( '-depsc2' , name )
 
 
-%% Plot thevene Unbiast
+%% Plot Unbiased
 unbias=figure(2*length(P)+i);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -184,7 +181,7 @@ name=['\Users\wicpan\Dropbox\IRFU\pic\Unbiased',num2str(D*100,'%6.4g'),...
     num2str(i,'%6.4g'),'.eps'];
 print( '-depsc2' , name )
 
-%% Plot thevene biast
+%% Plot biased
 bias=figure(3*length(P)+i);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -221,7 +218,7 @@ name=['\Users\wicpan\Dropbox\IRFU\pic\Biased',num2str(D*100,'%6.4g'),...
 print( '-depsc2' , name )
 
 clf(figure(4*length(P)+i));
-
+%% valuse from the calulations
 num=figure(4*length(P)+i);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -279,3 +276,5 @@ print( '-dpng' , name )
 end
  toc   
 end
+end
+

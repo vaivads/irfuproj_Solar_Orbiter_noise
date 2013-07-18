@@ -1,13 +1,9 @@
 function[] = orbit()
 
-load '/Users/wicpan/Dropbox/IRFU/matlab/helios/Helios_data'
+load 'wp/Helios_data'
 
 Units=irf_units;
 Me= Units.me;      %% Electron mass            (Kg)
-Mp= Units.mp;      %% Proten mass              (Kg)
-eps0= Units.eps0;  %% Electric constatn        (F/m)
-qe= Units.e;       %% Elemetary charge         (C)
-KB= Units.kB;      %% Boltsman konstatn        (J/K)
 L=5;               %% Antenna lenghts          (m)
 r=0.575e-2;        %% Antenna radiens          (m)
 
@@ -22,7 +18,7 @@ f=10.^[log10(10^0):2:log10(1e1)];
 for j = 1:length(D)
 [Ne,Tp,B,V,RBt,RBe,RBi,RBp,RUt,RUe,RUi,RUp,VU,VB,Is,Ib,Iu,IT0] = wp.data2(D(j),IT(j),P,Vsweep,r);
 
-Ne=Ne.*1e6;         %% Electron dencety             (m^-3) 
+Ne=Ne.*1e6;         %% Electron density             (m^-3) 
 Te=Tp./2.5;         %% Electron temperatur          (K)
 V=V.*1e3;           %% Solar wind velocity          (m/s)
 B=B.*1e-9;          %% Magnetic field               (T)
@@ -31,18 +27,18 @@ Cp=30e-12;          %% Plasma capacitance          (F)
 
 %% Calculations
 for i=1:length(P),
-%% Calculations 
 
-I{i}=wp.C.ion(f,Ne(i),Te(i),Tp(i),V(i),L);
+I{i}=wp.C.ion(f,Ne(i),Te(i),Tp(i),V(i),L); % QTN ion
 
-SBe{i}=wp.C.shote(f,Ne(i),Te(i),RBt(i),Cp,L,Me);
+SBe{i}=wp.C.shote(f,Ne(i),Te(i),RBt(i),Cp,L,Me); %shot noise
 
-SUe{i}=wp.C.shote(f,Ne(i),Te(i),RUt(i),Cp,L,Me);
+SUe{i}=wp.C.shote(f,Ne(i),Te(i),RUt(i),Cp,L,Me); % shot noise
 
 %% thevene 
 IB(i)=sqrt(Is(i)^2+(Is(i)-Ib(i))^2); 
 IU(i)=sqrt(Is(i)^2+(Is(i)-Iu(i))^2);
 
+ %other noise
 [Veb{i},Vib{i},Vpb{i},Vb{i},VEb{i},Vab{i}] = wp.R.noisR(f,Te(i),Tp(i),RBe(i),RBi(i),RBp(i),IB(i),L,I{i});
 
 [Veu{i},Viu{i},Vpu{i},Vu{i},VEu{i},Vau{i}] = wp.R.noisR(f,Te(i),Tp(i),RUe(i),RUi(i),RUp(i),IU(i),L,I{i});
@@ -50,7 +46,7 @@ IU(i)=sqrt(Is(i)^2+(Is(i)-Iu(i))^2);
 Vb{i}=Vb{i}+VEu{i}+Vau{i}+SBe{i};
 Vu{i}=Vu{i}+VEu{i}+Vau{i}+SUe{i};
 end
-
+%calulation a mean value
 T1(j)=mean(Vb{1});
 T2(j)=mean(Vb{2});
 T3(j)=mean(Vb{3});
@@ -83,7 +79,7 @@ j/length(D)
  
 end
 
-            
+% plot over the distance for a biased antenna           
 Bias=figure(1);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -109,6 +105,7 @@ set(Bias,'color','white'); % white background for figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\Biasdis','.eps'];
 print( '-depsc2' , name )
 
+% plot of the proton temperature over the distance
 Temp=figure(2);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -132,6 +129,7 @@ set(Temp,'color','white'); % white background for figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\Temp','.eps'];
 print( '-depsc2' , name )
 
+% plot of the particle density over the distance
 Dens=figure(3);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -155,6 +153,7 @@ set(Dens,'color','white'); % white background for figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\Dens','.eps'];
 print( '-depsc2' , name )
 
+% plot of the solar wind speed over the distance
 Wind=figure(4);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -178,6 +177,7 @@ set(Wind,'color','white'); % white background for figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\Wind','.eps'];
 print( '-depsc2' , name )
 
+% plot of the magnetic field over the distance
 Mag=figure(5);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -201,7 +201,7 @@ set(Mag,'color','white'); % white background for figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\Mag','.eps'];
 print( '-depsc2' , name )
 
-
+% plot of the current inside the antenna
 Current=figure(6);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
@@ -225,7 +225,7 @@ set(Current,'color','white'); % white background for figures (default is grey)
 name=['\Users\wicpan\Dropbox\IRFU\pic\Current','.eps'];
 print( '-depsc2' , name )
 
-
+% plot over the distance for a unbiased antenna
 Unbias=figure(7);
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
