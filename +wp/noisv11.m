@@ -1,11 +1,10 @@
-Function[] = noisv11(D,IT)
+function[] = noisv11(D,IT)
 
 % Noisv11 calculate the total noise for a wire dipole antenna.
-% [] = noisv11 (D, IT) does the calculations based on the distance from the
-% sun and the wanted biased current.
-% It uses the function ion, electron, short and data2 for the calculations. 
+% [] = noisv11 (D, IT) Calculations is based on the distance to the
+% sun and the wanted biased current and use the function ion, electron, shot and data2. 
 %
-% The result of the calculation will be potted in a logarithmic scale.
+% The result of the calculation will be plotted in a logarithmic scale.
 %
 % see also shot, ion, electron.
 %
@@ -35,16 +34,16 @@ P=[50 95 95];
 %%RBt Antenna resistance biased total        	(ohm) 
 %%RUe Antenna resistance unbiased electron   	(ohm)
 %%RUi Antenna resistance unbiased proton     	(ohm)        
-%%RUp Antenna resistance unbiased potonelectron(ohm)
+%%RUp Antenna resistance unbiased potonelectron (ohm)
 %%RUt Antenna resistance unbiased total      	(ohm)
-%%UV Unbiased voltage                         (V)
+%%UV Unbiased voltage                           (V)
 %%BV Biased voltage                         	(V)
 %%Is current saturation                     	(A)
-%%Ib current biased 					(A)
-%%Iu current biased 					(A)
+%%Ib current biased                             (A)
+%%Iu current biased                             (A)
 
 Ne=Ne.*1e6;         %% Electron density             (m^-3) 
-Te=Tp./2.5;         %% Electron Temperatur          (K)
+Te=Tp./2.5;         %% Electron temperatur          (K)
 V=V.*1e3;           %% Solar wind velocity          (m/s)
 B=B.*1e-9;          %% Magnetic field               (T)
 
@@ -54,21 +53,21 @@ Cp=30e-12;          %% Plasma capacitance          (F)
 for i=1:length(P),
 %% Calculations for Issad
 Fp(i)=sqrt(Ne(i)*qe.^2/(Me*eps0))/(2*pi);   %% Plasma frequency             (Hz)
-LFe(i)=qe*B(i)/(2*pi*Me);                   %% Lamor frequency electron     (Hz)
-LFp(i)=qe*B(i)/(2*pi*Mp);                   %% Lamor frequency proton       (Hz)
-v(i)=sqrt((KB*Te(i))/Me);                   %% Electron thermal velocity   (m/s)
-Ld(i)=sqrt(eps0*KB*Te(i)/(Ne(i)*(qe)^2));   %% Debay length                 (m)
+LFe(i)=qe*B(i)/(2*pi*Me);                   %% Larmor frequency electron    (Hz)
+LFp(i)=qe*B(i)/(2*pi*Mp);                   %% Larmor frequency proton      (Hz)
+v(i)=sqrt((KB*Te(i))/Me);                   %% Electron thermal velocity    (m/s)
+Ld(i)=sqrt(eps0*KB*Te(i)/(Ne(i)*(qe)^2));   %% Debye length                 (m)
 
 
-f{i}=10.^[log10(10^-1):1:log10(1e6)];  %frequsny range
+f{i}=10.^[log10(10^-1):0.01:log10(1e6)];            % Frequency range
 
-I{i}=wp.C.ion(f{i},Ne(i),Te(i),Tp(i),V(i),L); % QTN ion noise
+I{i}=wp.C.ion(f{i},Ne(i),Te(i),Tp(i),V(i),L);       % Ion QTN
 
-E{i}=wp.C.electron(f{i},Ne(i),Te(i),L);        % QTN electon 
+E{i}=wp.C.electron(f{i},Ne(i),Te(i),L);             % Electron QTN  
 
-SBe{i}=wp.C.shote(f{i},Ne(i),Te(i),RBt(i),Cp,L,Me); %Shot noise biased
+SBe{i}=wp.C.shote(f{i},Ne(i),Te(i),RBt(i),Cp,L,Me); % Shot noise biased
 
-SUe{i}=wp.C.shote(f{i},Ne(i),Te(i),RUt(i),Cp,L,Me); %shot noise unbiased
+SUe{i}=wp.C.shote(f{i},Ne(i),Te(i),RUt(i),Cp,L,Me); % Shot noise unbiased
 
 n=1;
 for j=f{i}
@@ -76,7 +75,7 @@ for j=f{i}
         E{i}(n)=0;
         n=n+1;
     end
-End % removing QTN election values lower than the electron gyrofrequency
+end % Removing electron QTN values lower than the electron gyrofrequency
 
 n=1;
 for j=f{i}
@@ -84,13 +83,13 @@ for j=f{i}
         I{i}(n)=0;
         n=n+1;
     end
-End  % removing QTN electron ion lower than the ion gyrofrequency
+end  % Removing ion QTN value lower than the ion gyrofrequency
 
      
 T{i}=sqrt(I{i}.^2+E{i}.^2); % Total QTN
 
 
-%% calculating the other noises 
+%% Calculating the other noises 
 IB(i)=sqrt(Is(i)^2+(Is(i)-Ib(i))^2); 
 IU(i)=sqrt(Is(i)^2+(Is(i)-Iu(i))^2);
 
@@ -106,15 +105,16 @@ end
 
 for i=1:length(P),
 %% Plots
-% ploting the QTN
+% Ploting the QTN
 issad=figure(length(P)+i);
+%Setup of plot
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
 set(gcf,'defaultTextFontSize',14);
 set(gcf,'defaultAxesFontUnits','pixels');
 set(gcf,'defaultTextFontUnits','pixels');
 set(gcf,'PaperUnits','centimeters')
-xSize = 12; ySize = 12;
+xSize = 24; ySize = 24;
 xLeft = (21-xSize)/2; yTop = (30-ySize)/2;
 set(gcf,'PaperPosition',[xLeft yTop xSize ySize])
 set(gcf,'Position',[10 10 xSize*50 ySize*50])
@@ -133,31 +133,32 @@ line ([Fp(i) Fp(i)],[1e-20 1e-12],'color','cyan','LineStyle',':','LineWidth',2)
 
 %%set(gca,'ylim',[10^-19 10^-13]);
 
-legend('Ion ','Electron','Totel','Larmor frequency ion',...
+legend('Ion ','Electron','Total','Larmor frequency ion',...
     'Larmor frequency electron','Plasma frequency',...
     'Location','Best')
 grid on
 xlim([10^-1 10^6])
 ylim([10^-19 10^-11])
-set(issad,'color','white'); % white background for the figures (default is grey)
-name=['\Users\wicpan\Dropbox\IRFU\pic\issad',num2str(D*100,'%6.4g'),num2str(i...
-    ,'%6.4g'),'.eps'];
-print( '-depsc2' , name )
+set(issad,'color','white'); % White background for the figures (default is grey)
+name=['C:\Users\Modesty\Desktop\pic\issad',num2str(D*100,'%6.4g'),num2str(i... 
+    ,'%6.4g'),'.eps']; %Location of saved plot
+print( '-depsc2' , name ) % Saving plot
 
 
 %% Plot Unbiased
 unbias=figure(2*length(P)+i);
+%Setup of plot
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
 set(gcf,'defaultTextFontSize',14);
 set(gcf,'defaultAxesFontUnits','pixels');
 set(gcf,'defaultTextFontUnits','pixels');
 set(gcf,'PaperUnits','centimeters')
-xSize = 12; ySize = 12;
+xSize = 24; ySize = 24;
 xLeft = (21-xSize)/2; yTop = (30-ySize)/2;
 set(gcf,'PaperPosition',[xLeft yTop xSize ySize])
 set(gcf,'Position',[10 10 xSize*50 ySize*50])
-set(gcf,'paperpositionmode','auto') % to get the same printing as on screen
+set(gcf,'paperpositionmode','auto') % To get the same printing as on screen
 clear xLeft xSize sLeft ySize yTop
 set(gcf,'paperpositionmode','auto')
 
@@ -168,28 +169,29 @@ loglog( f{i},Viu{i},'-r',f{i},Veu{i},'-g',f{i},Vpu{i},'-b',f{i},SUe{i},'-y',...
 xlabel('Frequency (Hz)')
 ylabel('(V/m)^2/Hz')
 
-legend('Ion ','Electron ','Photoelectron','Shot ',...
-    'Amplifier','Plasma E-field','Total noise',...
+legend('Thermal noise (Ion) ','Thermal noise (Electron) ','Thermal noise (Photoelectron)','Shot noise ',...
+    'Amplifier noise','QTN','Total noise',...
     'Location','Best')
 
 G=round(0.5+log10(sqrt(VEu{i}(1).^2+Vu{i}(1).^2+Vau{i}(1).^2)));
 grid on
 xlim([10^2 10^6])
 ylim([10^-19 10^-11])
-set(unbias,'color','white'); % white background for figures (default is grey)
-name=['\Users\wicpan\Dropbox\IRFU\pic\Unbiased',num2str(D*100,'%6.4g'),...
-    num2str(i,'%6.4g'),'.eps'];
-print( '-depsc2' , name )
+set(unbias,'color','white'); % White background for figures (default is grey)
+name=['C:\Users\Modesty\Desktop\pic\Unbiased',num2str(D*100,'%6.4g'),... 
+    num2str(i,'%6.4g'),'.eps']; %Location of saved plot
+print( '-depsc2' , name ) % Saving plot
 
 %% Plot biased
 bias=figure(3*length(P)+i);
+%Setup of plot
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
 set(gcf,'defaultTextFontSize',14);
 set(gcf,'defaultAxesFontUnits','pixels');
 set(gcf,'defaultTextFontUnits','pixels');
 set(gcf,'PaperUnits','centimeters')
-xSize = 12; ySize = 12;
+xSize = 24; ySize = 24;
 xLeft = (21-xSize)/2; yTop = (30-ySize)/2;
 set(gcf,'PaperPosition',[xLeft yTop xSize ySize])
 set(gcf,'Position',[10 10 xSize*50 ySize*50])
@@ -205,32 +207,33 @@ xlabel('Frequency (Hz)')
 ylabel('(V/m)^2/Hz')
 
 
-legend('Ion ','Electron ','Photoelectron','Shot ',...
-    'Amplifier ','Plasma E-field','Total',...
+legend('Thermal noise (Ion) ','Thermal noise (Electron) ','Thermal noise (Photoelectron)','Shot noise ',...
+    'Amplifiern noise','QTN','Total noise',...
     'Location','Best')
 G=round(0.5+log10(sqrt(VEb{i}(1).^2+Vb{i}(1).^2+Vab{i}(1).^2)));
 grid on
 xlim([10^2 10^6])
 ylim([10^-19 10^-11])
-set(bias,'color','white'); % white background for figures (default is grey)
-name=['\Users\wicpan\Dropbox\IRFU\pic\Biased',num2str(D*100,'%6.4g'),...
-    num2str(i,'%6.4g'),'.eps'];
-print( '-depsc2' , name )
+set(bias,'color','white'); % White background for figures (default is grey)
+name=['C:\Users\Modesty\Desktop\pic\Biased',num2str(D*100,'%6.4g'),... 
+    num2str(i,'%6.4g'),'.eps']; %Location of saved plot
+print( '-depsc2' , name ) % Saving plot
 
 clf(figure(4*length(P)+i));
 %% valuse from the calulations
 num=figure(4*length(P)+i);
+%Setup of plot
 set(0,'defaultLineLineWidth', 1.5);
 set(gcf,'defaultAxesFontSize',14);
 set(gcf,'defaultTextFontSize',14);
 set(gcf,'defaultAxesFontUnits','pixels');
 set(gcf,'defaultTextFontUnits','pixels');
 set(gcf,'PaperUnits','centimeters')
-xSize = 12; ySize = 12;
+xSize = 24; ySize = 24;
 xLeft = (21-xSize)/2; yTop = (30-ySize)/2;
 set(gcf,'PaperPosition',[xLeft yTop xSize ySize])
 set(gcf,'Position',[10 10 xSize*50 ySize*50])
-set(gcf,'paperpositionmode','auto') % to get the same printing as on screen
+set(gcf,'paperpositionmode','auto') % To get the same printing as on screen
 clear xLeft xSize sLeft ySize yTop
 set(gcf,'paperpositionmode','auto')
 
@@ -267,14 +270,14 @@ txstr(24)={['Frequency = ',num2str(f{i}(1),'%6.4g'),' to',num2str(f{i}(length(f{
 txstr(25)={['Antenna length = ',num2str(L,'%6.4g'),'(m)']};
 
 text(0.1e0,0.5e0,txstr,'HorizontalAlignment','left')
-set(num,'color','white'); % white background for figures (default is grey)
-set(gcf,'paperpositionmode','auto') % to get the same on paper as on screen
+set(num,'color','white'); % White background for figures (default is grey)
+set(gcf,'paperpositionmode','auto') % To get the same on paper as on screen
 % to get bitmap file
-name=['\Users\wicpan\Dropbox\IRFU\pic\data',num2str(D*100,'%6.4g'),...
-    num2str(i,'%6.4g'),'.png'];
-print( '-dpng' , name )
+name=['C:\Users\Modesty\Desktop\pic\data',num2str(D*100,'%6.4g'),... 
+   num2str(i,'%6.4g'),'.png'];% Location of saved plot
+print( '-dpng' , name ) % Saving plot
 end
  toc   
 end
-end
+
 

@@ -1,21 +1,21 @@
 function[Vs] = shote(f,ne,T,R,C,L,M)
 
 % Shot calculates the shot noise for a wire dipole antenna.
-% [Vs] = shot(f,ne,Te,R,C) where;
+% [Vs] = shot(f,ne,Te,R,C) 
 % input:
-% f is a vector white the frequency. 
+% f is the frequency vector. 
 % ne is the electron density.
 % Te is the electron temperature.
 % R is the antenna resistance.
 % C is the antenna capacitance.
-% L  is the antenna length
-% M  is mass
+% L  is the antenna length.
+% M  is mass.
 % 
 % Output:
-% Vs is a vector for the voltage power spectrum from the shot noise
+% Vs is the voltage power spectrum of the shot noise vector.
 %
-% The question comes from Meyer-Vernet article from 2009 (quasi-thermal noise in space plasma) 
-%
+% The equastion is based upon the Issautires paper "Quasi-thermal
+% noise in drifting plasma" from 1999.
 %
 % exampel:
 %         shot([1 2 3 4 5 6],5e6,1.5e5,5e6,20e-12)
@@ -26,14 +26,14 @@ function[Vs] = shote(f,ne,T,R,C,L,M)
 
 %% Declaration of constants (NIST) 
 
-KB= 1.3806488*10^-23;   %% Boltsman constant            (J/K)
-qe= 1.602176565*10^-19; %% Elemetary charge             (C)
+KB= 1.3806488*10^-23;   %% Boltzmann constant    J/K)
+qe= 1.602176565*10^-19; %% Elemetary charge     (C)
 
-a=0.0116/2;             %% equivalent radius            (m)
+a=0.0116/2;             %% Equivalent radius    (m)
                  
 %% small functions
 
-v=sqrt((KB*T)/M);           %%  thermic velocity   (m/s)
+v=sqrt((KB*T)/M);       %%  Thermal velocity   (m/s)
 
 Ne=1./sqrt(4.*pi).*ne.*v.*a.*L.*2.*pi;
 %% shot noise

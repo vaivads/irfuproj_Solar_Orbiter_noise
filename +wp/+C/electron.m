@@ -1,18 +1,19 @@
 function[Ve] = electron(f,ne,Te,L)
 
-% Electorn calculate the electronic QTN noise for a wire dipole antenna.
+% Electron calculates the electron QTN noise for a wire dipole antenna.
 % [Ve] = electron(f,ne,Te) where:
 % input:
-% f is a vector with the frequency.
+% f is the frequency vector.
 % ne is the electron density.
 % Te is the electron temperature.
-% L  is the antenna length
+% L  is the antenna length.
 %
 % Output:
-% Ve is a vector whit the voltage power spectrum from the electronic QTN noise
+% Ve is a vector for the voltage power spectrum of the electronic QTN
+% noise.
 %
-% The equastion comes from Meyer. Bernet and chateau artical from 1991 (electrostatic noise in non-maxwellian plasmas) 
-% 
+% The equation is based uon the Meyerbernet and Chateau paper "Electrostatic 
+% noise in non-maxwellian plasma" from 1991.
 %
 % exampel:
 %         electron([1 2 3 4 5 6],5e6,1.5e5,5)
@@ -24,9 +25,9 @@ function[Ve] = electron(f,ne,Te,L)
 %% Declaration of constants 
 
 Me= 9.10938291*10^-31;  %% Electron mass                (KG)
-KB= 1.3806488*10^-23;   %% Boltsman constant            (J/K)
+KB= 1.3806488*10^-23;   %% Boltzmann constant            (J/K)
 e0= 8.854187817*10^-12; %% Electric constant            (F/m)
-qe= 1.602176565*10^-19; %% elementary charge             (C)
+qe= 1.602176565*10^-19; %% Elementary charge             (C)
 
 k=2;                    %% Kappa
 
@@ -35,7 +36,7 @@ v=sqrt((2.*k-3)./k.*KB.*Te./Me);    %% Electron thermal velocity   (m/s)
 
 Fp=sqrt(ne*qe.^2/(Me*e0))/(2*pi);   %% Plasma frequency
 
-Ld=sqrt(e0*KB*Te/(ne*(qe)^2));      %% Debay length
+Ld=sqrt(e0*KB*Te/(ne*(qe)^2));      %% Debye length
 
 n=1;
 u=L./Ld;

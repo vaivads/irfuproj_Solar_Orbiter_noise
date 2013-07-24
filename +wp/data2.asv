@@ -1,34 +1,34 @@
 function[Ne,Tp,Be,Ve,BRT,BRE,BRI,BRP,URT,URE,URI,URP,VU,VB,Is,Ib,Iu,IT0] = data2(D,IB,P,Vsweep,r)
 
-% data2 calculate the plasma parameter as function of the distance to sun.
-% The input data is collected from the Helios 1 and Helios 2 satellite.   
+% data2 calculate the plasma parameter depending on the distance from the sun.
+% it collects data from the Helios 1 and Helios 2 satellite.   
 %
 % [Ne,Te,Be,Ve,BRT,BRE,BRI,BRP,URT,URE,URI,URP,UV,BV,Is,Ib,Iu] = data2(D,IB,P,Vsweep,r)
 % input:
-% D is distances to sun .
-% IB is the wanted current biased for the antenna.
-% P is the average probability.
-% Vsweep is the voltage sweep band
-% r is the antenna radius.
+% D distances to from the sun .
+% IB wanted current biased for the antenna.
+% P avrige probability.
+% Vsweep  voltage sweep band
+% r antenna radius.
 %
 % Output:
-%Ne partial density. 
-%Tp proton temperature. 
-%Be magnetic field.
-%Ve solar wind speed.
-%BRT total resistance biased.
-%BRE electron resistance biased.
-%BRI Ion resistance biased.
-%BRP photoelectron resistance biased.
-%URT total resistance unbiased.
-%URE electron resistance unbiased.
-%URI Ion resistance unbiased.
-%URP photoelectron resistance unbiased.
-%VU  voltage when unbiased.
-%VB  voltage when biased.
-%Is  current when saturated.
-%Ib  current when biased.
-%Iu  current when unbiased.
+%Ne partial density 
+%Tp proton temperature 
+%Be magnetic field
+%Ve solar wind speed
+%BRT total resistance biased
+%BRE electron resistance biased
+%BRI Ion resistance biased
+%BRP photoelectron resistance biased
+%URT total resistance unbiased
+%URE electron resistance unbiased
+%URI Ion resistance unbiased
+%URP photoelectron resistance unbiased
+%VU  voltage when unbiased
+%VB  voltage when biased
+%Is  current when saturated
+%Ib  current when biased
+%Iu  current when unbiased
 %
 % 
 % see also: 
@@ -58,12 +58,11 @@ while n<=length(x)
     end
     
     n=n+1;
-end     % Collect values from Helios 1
+End     % collect values from Helios 1
 n=1;
-i=1;
 x=helios2.heliocentricDistance(:,2);
 
-while n<=length(x)   % Collect values from Helios 2
+while n<=length(x)   % collect values from Helios 2
     
     if ((D-0.01)<x(n)) & ((D+0.01)>x(n))
           
@@ -82,7 +81,8 @@ while n<=length(x)   % Collect values from Helios 2
     n=n+1;
 end
 
-for i = 1: length (P) % Removes NAN values
+
+For I = 1: length (P) % removing NAN values
     
 Ne(i) = prctile(N(~isnan(N)),P(i));
         
@@ -92,15 +92,22 @@ Be(i) = prctile(B(~isnan(B)),P(i));
 
 Ve(i) = prctile(V(~isnan(V)),P(i));
 
-if i==1  %Average case
+
+if i==1 
   
-elseif i==2 % High temperatur case
+elseif i==2
     n=1;
     c=1;
     L=[];
     K=[];
-    M=[];  
-    for j=T
+    M=[];
+elseif i==3
+    n=1;
+    c=1;
+    L=[];
+    K=[];
+    M=[];
+   for j=T
        
        if Tp(i)-10000 <= j & j <= Tp(i)+10000
            L(c)=N(n);
@@ -109,18 +116,14 @@ elseif i==2 % High temperatur case
            c=c+1;
        end
        n=n+1;
-    end
+   end
+   
    Ne(i) = mean(L(~isnan(L)));
    Be(i) = mean(K(~isnan(K)));
    Ve(i) = mean(M(~isnan(M)));
-   
-elseif i==3 % High density case
-    n=1;
-    c=1;
-    L=[];
-    K=[];
-    M=[];
-    for j=N
+
+
+   for j=N
        
        if j <= Ne(i)+3 & j >= Ne(i)-3
            L(c)=T(n);
@@ -129,33 +132,30 @@ elseif i==3 % High density case
            c=c+1;
        end
        n=n+1;
-    end
+   end
+   
    Tp(i) = mean(L(~isnan(L)));
    Be(i) = mean(K(~isnan(K)));
    Ve(i) = mean(M(~isnan(M)));
-   
 end
 
-
-   
 end
-
 for i=1:length(P),
     
-    % Setup for probe_current
+    % setup for probe_current
     probe.type  ='cylindrical';                             %'spherical','cylindrical','arbitrary'
     probe.surface ='gold';                                  %'themis','cassini' (one of flags in lp.photocurrent)
-    probe.cross_section_area =r*2*5;                        %In m2
-    probe.total_area =2*pi*(r*5);                           %In m2
-    U_probe    =Vsweep;                                     %Probe potential (can be vector or matrix) 
-    R_sun      =D;                                          %Distance from sun in AU
-    UV_factor  =1;                                          %Default is 1
-    %Describes plasma components (structure)
+    probe.cross_section_area =r*2*5;                        %in m2
+    probe.total_area =2*pi*(r*5);                           %in m2
+    U_probe    =Vsweep;                                     %probe potential (can be vector or matrix) 
+    R_sun      =D;                                          %distance from sun in AU
+    UV_factor  =1;                                          %default is 1
+    %describes plasma components (structure)
     plasma.q = [-1 1];                                      %- charge of species in e (the length of this vector corresponds to number of species)
-    plasma.m = [0 1];                                       %Mass of species in proton masses (0 corresponds to e- mass)
-    plasma.n = [Ne(i) Ne(i)];                               %Density of species [cc]
-    plasma.T = [Tp(i)/2.5*8.61734e-5 Tp(i)*8.61734e-5];     %Temperature [eV]
-    plasma.vsc =[Ve(i) Ve(i)];                              %Velocity of probe wrt. mmedia [m/s]
+    plasma.m = [0 1];                                       %mass of species in proton masses (0 corresponds to e- mass)
+    plasma.n = [Ne(i) Ne(i)];                               %density of species [cc]
+    plasma.T = [Tp(i)/2.5*8.61734e-5 Tp(i)*8.61734e-5];     %temperature [eV]
+    plasma.vsc =[Ve(i) Ve(i)];                              %velocity of probe wrt. mmedia [m/s]
     
     [J_probe, J_photo, J_plasma]=lp.probe_current(probe,U_probe,R_sun,UV_factor,plasma);
     
@@ -164,7 +164,7 @@ for i=1:length(P),
     Is(i)=min(J_photo);
     [idx idx] = min(abs(J_probe));
 
-    if idx<21  % Check if the required values is on too high or too low
+    if idx<21  % check if the required values is on too high or too low
         idx=21;
 
         elseif idx>length(J_probe)-21
@@ -172,7 +172,7 @@ for i=1:length(P),
     end
 
     
-    % Calculating the resistance when it is unbiased 
+    % calculating the resistance when it is unbiased 
     URT(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_probe(idx+20)-J_probe(idx-20));
     URP(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_photo(idx+20)-J_photo(idx-20));
     URE(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_plasma{1}(idx+20)-J_plasma{1}(idx-20));
@@ -190,7 +190,7 @@ for i=1:length(P),
     elseif idx>length(J_probe)-21
          idx=length(J_probe)-21;
     end
-    % Calculating the resistance when it is biased 
+    % calculating the resistance when it is biased 
     BRT(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_probe(idx+20)-J_probe(idx-20));
     BRP(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_photo(idx+20)-J_photo(idx-20));
     BRE(i)=(U_probe(idx+20)-U_probe(idx-20))/(J_plasma{1}(idx+20)-J_plasma{1}(idx-20));
@@ -207,11 +207,11 @@ for i=1:length(P),
     set(gcf,'defaultAxesFontUnits','pixels');
     set(gcf,'defaultTextFontUnits','pixels');
     set(gcf,'PaperUnits','centimeters')
-    xSize = 24; ySize = 24;
+    xSize = 12; ySize = 12;
     xLeft = (21-xSize)/2; yTop = (30-ySize)/2;
     set(gcf,'PaperPosition',[xLeft yTop xSize ySize])
     set(gcf,'Position',[10 10 xSize*50 ySize*50])
-    set(gcf,'paperpositionmode','auto') % To get the same printing as on screen
+    set(gcf,'paperpositionmode','auto') % to get the same printing as on screen
     clear xLeft xSize sLeft ySize yTop
     set(gcf,'paperpositionmode','auto')
 
@@ -220,11 +220,10 @@ for i=1:length(P),
     ylabel('Particle temperature (K)')
     legend('Data point','Calulation point','Location','Best')
     
-    set(gcf,'color','white'); % White background for figures (default is grey)
-    set(gcf,'paperpositionmode','auto') % To get the same on paper as on screen
-    name=['C:\Users\Modesty\Desktop\pic\U-I\vs',num2str(D*100,'%6.4g'),...
-        num2str(i,'%6.4g'),'.eps'];  % Location of saved plot
-    print( '-depsc2' , name ) %  Saving plot
+    set(gcf,'color','white'); % white background for figures (default is grey)
+    set(gcf,'paperpositionmode','auto') % to get the same on paper as on screen
+    name=['\Users\wicpan\Dropbox\IRFU\pic\U-I\vs',num2str(D*100,'%6.4g'),num2str(i,'%6.4g'),'.eps'];
+    print( '-depsc2' , name )
     
     % Plot of the U-I curve
     UI=figure((1+i));
@@ -234,11 +233,11 @@ for i=1:length(P),
     set(gcf,'defaultAxesFontUnits','pixels');
     set(gcf,'defaultTextFontUnits','pixels');
     set(gcf,'PaperUnits','centimeters')
-    xSize = 24; ySize = 24;
+    xSize = 12; ySize = 12;
     xLeft = (21-xSize)/2; yTop = (30-ySize)/2;
     set(gcf,'PaperPosition',[xLeft yTop xSize ySize])
     set(gcf,'Position',[10 10 xSize*50 ySize*50])
-    set(gcf,'paperpositionmode','auto') % To get the same printing as on screen
+    set(gcf,'paperpositionmode','auto') % to get the same printing as on screen
     clear xLeft xSize sLeft ySize yTop
     set(gcf,'paperpositionmode','auto')
 
@@ -252,16 +251,10 @@ for i=1:length(P),
     xlabel('Voltage (V)')
     ylabel('Current (A)')
     grid on
-    set(gcf,'color','white'); % White background for figures (default is grey)
-    set(gcf,'paperpositionmode','auto') % To get the same on paper as on screen
-    name=['C:\Users\Modesty\Desktop\pic\U-I\UI',num2str(D*100,'%6.4g'),...
-     num2str(i,'%6.4g'),'.eps']; % Location of saved plot
-    print( '-depsc2' , name )% Saving plot
+    set(gcf,'color','white'); % white background for figures (default is grey)
+    set(gcf,'paperpositionmode','auto') % to get the same on paper as on screen
+    name=['\Users\wicpan\Dropbox\IRFU\pic\U-I\UI',num2str(D*100,'%6.4g'),num2str(i,'%6.4g'),'.eps'];
+    print( '-depsc2' , name )
 end
-
-end
-
-
-
 
 

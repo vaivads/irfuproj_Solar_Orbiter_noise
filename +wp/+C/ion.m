@@ -3,7 +3,7 @@ function[Vi] = ion(f,ne,Te,Tp,V,L)
 % Ion calculates the ion QTN noise for a wire dipole antenna.
 % [Vi] = ion(f,ne,Te,Tp,V) where:
 % input:
-% F is a vector with the frequency.
+% F is the frequency vector
 % ne is the ion density.
 % Te is the electron temperature.
 % Tp is the Proton Temperatur.
@@ -11,10 +11,10 @@ function[Vi] = ion(f,ne,Te,Tp,V,L)
 % L  is the antenna length
 %
 % Output:
-% Vi is a vector with the voltage power spectrum from the ion QTN noise
+% Vi is a vector for the voltage power spectrum of the ion QTN noise
 %
-% The equastions comes from a issautires article from 1999 (quasi-thermal
-% noise in drifting plasma) 
+% The equastion is based upon the Issautires paper "Quasi-thermal
+% noise in drifting plasma" from 1999.
 %
 % exampel:
 %         ion([1 2 3 4 5 6],5e6,1.5e5,0.8e5,354e3,5)
@@ -27,14 +27,14 @@ function[Vi] = ion(f,ne,Te,Tp,V,L)
 %% Declaration of constants
 
 Me=9.1094e-31;      %% Electron mass                (KG)
-KB=1.3800e-23;      %% Boltsman constant            (J/K)
+KB=1.3800e-23;      %% Boltzmann constant           (J/K)
 e0=8.8542e-12;      %% Electric constant            (F/m)
-qe=1.6022e-19;      %% Elemetary charge             (C)
+qe=1.6022e-19;      %% Elementary charge            (C)
 
 %% Small functions 
 n=1;
 v=sqrt((KB*Te)/Me);             %% Electron thermal velocity   (m/s)
-Ld=sqrt(e0*KB*Te/(ne*(qe)^2));  %% Debay length
+Ld=sqrt(e0*KB*Te/(ne*(qe)^2));  %% Debye length
 
 t= Te/Tp;
 M= V/v;
